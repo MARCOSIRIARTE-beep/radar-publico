@@ -8,9 +8,19 @@ import streamlit as st
 BASE = Path(__file__).resolve().parent
 CSV = BASE / "RADAR_PUBLICO_sanidad_2024_2025.csv"
 
+# Documentación primaria del Ministerio de Sanidad.
+FUENTE_2024 = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/LISTAS_PUBLICACION_dic2024.pdf"
+FUENTE_2025 = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/Informe_situacion_listas_de_espera_dic_2025_V1.pdf"
+PORTAL_FUENTES = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/listaEspera.htm"
+RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los informes de "
+                 "diciembre de 2025 tras una rectificación de los datos aportados "
+                 "por Castilla-La Mancha. Consulte siempre la versión actualizada "
+                 "en el portal oficial.")
+
+
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.4 · IA experimental")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.5 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -87,7 +97,17 @@ with pestana1:
         caso = alertas.loc[seleccion]
         st.markdown(f"**{caso['territorio']} — {caso['especialidad']}**")
         st.write(f"La espera media pasó de **{caso['valor_2024']:.0f} días** (diciembre de 2024) a **{caso['valor_2025']:.0f} días** (diciembre de 2025): **{caso['variacion_dias']:+.0f} días** ({caso['variacion_porcentual']:+.1f}%).")
-        st.write("**Fuentes:**", caso["fuente_2024"], "y", caso["fuente_2025"])
+        st.markdown("### 🔎 Fuentes y verificación")
+        st.write("**Referencia de 2024:**", caso["fuente_2024"])
+        st.write("**Referencia de 2025:**", caso["fuente_2025"])
+        st.markdown(f"[📄 Abrir informe oficial de diciembre de 2024]({FUENTE_2024})")
+        st.markdown(f"[📄 Abrir informe oficial de diciembre de 2025]({FUENTE_2025})")
+        st.caption("Las referencias del CSV indican la página 4 de los informes. "
+                   "Compruebe la fila y el encabezado de la especialidad y territorio en los documentos originales.")
+        st.info(RECTIFICACION)
+        st.markdown(f"[Consultar el portal del Ministerio y sus últimas actualizaciones]({PORTAL_FUENTES})")
+        st.caption("Verificación editorial: los enlaces permiten contrastar la cifra, pero "
+                   "la aplicación no ha auditado automáticamente todas las filas del CSV.")
         st.warning("Estado: pendiente de verificación editorial. Revisar cambios metodológicos, número de pacientes y contexto antes de publicar.")
         st.subheader("📝 Ficha de investigación periodística")
         st.caption("Ficha automática basada en reglas, no generada por IA. Las preguntas son hipótesis de trabajo, no explicaciones confirmadas.")
@@ -108,6 +128,10 @@ with pestana1:
                  "¿Hubo cambios de personal, derivaciones o registro? ¿Qué medidas se han adoptado?\n\n"
                  "Pendiente de verificación editorial: contrastar fuente, metodología, contexto y respuesta oficial.\n"
                  f"Fuentes indicadas en la base: {caso['fuente_2024']} ; {caso['fuente_2025']}\n"
+                 f"Documento oficial 2024: {FUENTE_2024}\n"
+                 f"Documento oficial 2025: {FUENTE_2025}\n"
+                 f"Portal de actualizaciones: {PORTAL_FUENTES}\n"
+                 f"Nota de rectificación: {RECTIFICACION}\n"
                  "Ficha automática basada en reglas; no generada por IA.")
         st.download_button("Descargar ficha de investigación (TXT)", ficha.encode("utf-8"),
                            file_name="radar_publico_ficha.txt", mime="text/plain")
@@ -197,6 +221,11 @@ with pestana2:
 with pestana3:
     st.markdown("""### Fuentes y alcance
 - Ministerio de Sanidad, Sistema de Información sobre Listas de Espera del SNS (SISLE-SNS), **31 de diciembre de 2024 y 31 de diciembre de 2025**, tablas de tiempos medios de espera por especialidad y territorio, página 4 de cada documento.
+- [Informe oficial de diciembre de 2024](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/LISTAS_PUBLICACION_dic2024.pdf).
+- [Informe oficial de diciembre de 2025](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/Informe_situacion_listas_de_espera_dic_2025_V1.pdf).
+- [Portal oficial y actualizaciones del Ministerio](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/listaEspera.htm).
+- **Rectificación de 24 de septiembre de 2026:** actualización de los informes de diciembre de 2025 por datos de Castilla-La Mancha. Se han contrastado los seis valores de 2025 de Castilla-La Mancha del CSV con el informe actualizado; esta comprobación no constituye una auditoría de las 114 comparaciones.
+
 - Cada fila corresponde a **una especialidad en un territorio**, no a la media quirúrgica total.
 - Los cambios se calculan como `días_2025 − días_2024` y el porcentaje como `100 × cambio / días_2024`.
 - Los umbrales son **experimentales y configurables**; no son criterios oficiales ni un contraste estadístico.
@@ -206,8 +235,7 @@ with pestana3:
 ### Próximas iteraciones
 1. Incorporar más años y controles de comparabilidad.
 2. Validar series de calidad postal (CNMC) y ferrocarril antes de activar esos módulos.
-3. Incorporar resúmenes asistidos por IA con citas verificables, nunca como fuente autónoma.
+3. Extender la verificación documental y mejorar los análisis con IA sin presentar sus respuestas como fuentes autónomas.
 """)
 st.divider()
 st.caption("RADAR PÚBLICO · Prototipo de investigación y docencia. Ninguna alerta equivale a una noticia verificada.")
-
