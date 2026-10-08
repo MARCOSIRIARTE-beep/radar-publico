@@ -9,7 +9,7 @@ CSV = BASE / "RADAR_PUBLICO_sanidad_2024_2025.csv"
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.2")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.3")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -88,6 +88,28 @@ with pestana1:
         st.write(f"La espera media pasó de **{caso['valor_2024']:.0f} días** (diciembre de 2024) a **{caso['valor_2025']:.0f} días** (diciembre de 2025): **{caso['variacion_dias']:+.0f} días** ({caso['variacion_porcentual']:+.1f}%).")
         st.write("**Fuentes:**", caso["fuente_2024"], "y", caso["fuente_2025"])
         st.warning("Estado: pendiente de verificación editorial. Revisar cambios metodológicos, número de pacientes y contexto antes de publicar.")
+        st.subheader("📝 Ficha de investigación periodística")
+        st.caption("Ficha automática basada en reglas, no generada por IA. Las preguntas son hipótesis de trabajo, no explicaciones confirmadas.")
+        st.markdown("**Dato comprobable en la base cargada**")
+        st.write(f"En {caso['territorio']}, la espera media en {caso['especialidad']} pasó de {caso['valor_2024']:.0f} a {caso['valor_2025']:.0f} días entre diciembre de 2024 y diciembre de 2025, una variación de {caso['variacion_dias']:+.0f} días ({caso['variacion_porcentual']:+.1f}%).")
+        st.markdown("**Por qué merece una comprobación**")
+        st.write(f"El cambio supera los umbrales provisionales de alerta {str(caso['nivel']).lower()} configurados en el panel. Esto sirve para priorizar una investigación, no para concluir que existe una anomalía estadística.")
+        st.markdown("**Preguntas para la administración sanitaria**")
+        st.markdown("- ¿Cuántos pacientes estaban pendientes de intervención en ambos cortes?\n- ¿Ha variado el número de intervenciones realizadas?\n- ¿Se han producido cambios de personal, derivaciones o criterios de registro?\n- ¿Qué medidas se han adoptado y con qué resultados?")
+        st.markdown("**Comprobaciones antes de publicar**")
+        st.markdown("- Contrastar los valores con las tablas originales del Ministerio de Sanidad.\n- Revisar comparabilidad metodológica y el contexto de la especialidad.\n- Solicitar explicación y datos complementarios a la consejería competente.\n- Evitar atribuir causas sin evidencia adicional.")
+        ficha = (f"RADAR PÚBLICO — FICHA DE INVESTIGACIÓN\n\n"
+                 f"Territorio: {caso['territorio']}\nEspecialidad: {caso['especialidad']}\n"
+                 f"Diciembre 2024: {caso['valor_2024']:.0f} días\nDiciembre 2025: {caso['valor_2025']:.0f} días\n"
+                 f"Variación: {caso['variacion_dias']:+.0f} días ({caso['variacion_porcentual']:+.1f}%)\n"
+                 f"Nivel provisional: {caso['nivel']}\n\n"
+                 "Preguntas: ¿Cuántos pacientes esperan? ¿Cuántas intervenciones se realizan? "
+                 "¿Hubo cambios de personal, derivaciones o registro? ¿Qué medidas se han adoptado?\n\n"
+                 "Pendiente de verificación editorial: contrastar fuente, metodología, contexto y respuesta oficial.\n"
+                 f"Fuentes indicadas en la base: {caso['fuente_2024']} ; {caso['fuente_2025']}\n"
+                 "Ficha automática basada en reglas; no generada por IA.")
+        st.download_button("Descargar ficha de investigación (TXT)", ficha.encode("utf-8"),
+                           file_name="radar_publico_ficha.txt", mime="text/plain")
 with pestana2:
     st.subheader("Comparación interanual")
     if vista.empty:
