@@ -1,0 +1,115 @@
+﻿sector,territorio,especialidad,indicador,unidad,valor_2024,valor_2025,variacion_dias,variacion_porcentual,fuente_2024,fuente_2025
+Sanidad,ANDALUCÍA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,153,149,-4,-2.61,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ANDALUCÍA,Ginecología,Tiempo medio de espera quirúrgica,días,180,175,-5,-2.78,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ANDALUCÍA,Oftalmología,Tiempo medio de espera quirúrgica,días,102,95,-7,-6.86,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ANDALUCÍA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,186,212,26,13.98,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ANDALUCÍA,Traumatología,Tiempo medio de espera quirúrgica,días,184,187,3,1.63,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ANDALUCÍA,Urología,Tiempo medio de espera quirúrgica,días,201,172,-29,-14.43,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ARAGON,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,127,92,-35,-27.56,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ARAGON,Ginecología,Tiempo medio de espera quirúrgica,días,55,48,-7,-12.73,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ARAGON,Oftalmología,Tiempo medio de espera quirúrgica,días,119,92,-27,-22.69,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ARAGON,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,198,185,-13,-6.57,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ARAGON,Traumatología,Tiempo medio de espera quirúrgica,días,165,163,-2,-1.21,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,ARAGON,Urología,Tiempo medio de espera quirúrgica,días,109,122,13,11.93,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PDO DE ASTURIAS,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,105,86,-19,-18.1,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PDO DE ASTURIAS,Ginecología,Tiempo medio de espera quirúrgica,días,60,56,-4,-6.67,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PDO DE ASTURIAS,Oftalmología,Tiempo medio de espera quirúrgica,días,78,85,7,8.97,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PDO DE ASTURIAS,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,91,95,4,4.4,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PDO DE ASTURIAS,Traumatología,Tiempo medio de espera quirúrgica,días,107,115,8,7.48,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PDO DE ASTURIAS,Urología,Tiempo medio de espera quirúrgica,días,92,82,-10,-10.87,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,BALEARES,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,146,153,7,4.79,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,BALEARES,Ginecología,Tiempo medio de espera quirúrgica,días,66,89,23,34.85,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,BALEARES,Oftalmología,Tiempo medio de espera quirúrgica,días,60,88,28,46.67,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,BALEARES,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,87,130,43,49.43,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,BALEARES,Traumatología,Tiempo medio de espera quirúrgica,días,101,138,37,36.63,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,BALEARES,Urología,Tiempo medio de espera quirúrgica,días,100,93,-7,-7.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANARIAS,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,71,73,2,2.82,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANARIAS,Ginecología,Tiempo medio de espera quirúrgica,días,62,57,-5,-8.06,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANARIAS,Oftalmología,Tiempo medio de espera quirúrgica,días,96,77,-19,-19.79,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANARIAS,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,111,103,-8,-7.21,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANARIAS,Traumatología,Tiempo medio de espera quirúrgica,días,160,137,-23,-14.37,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANARIAS,Urología,Tiempo medio de espera quirúrgica,días,91,93,2,2.2,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANTABRIA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,143,118,-25,-17.48,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANTABRIA,Ginecología,Tiempo medio de espera quirúrgica,días,87,63,-24,-27.59,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANTABRIA,Oftalmología,Tiempo medio de espera quirúrgica,días,97,82,-15,-15.46,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANTABRIA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,176,160,-16,-9.09,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANTABRIA,Traumatología,Tiempo medio de espera quirúrgica,días,180,188,8,4.44,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CANTABRIA,Urología,Tiempo medio de espera quirúrgica,días,121,93,-28,-23.14,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA Y LEON,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,71,74,3,4.23,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA Y LEON,Ginecología,Tiempo medio de espera quirúrgica,días,48,57,9,18.75,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA Y LEON,Oftalmología,Tiempo medio de espera quirúrgica,días,46,48,2,4.35,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA Y LEON,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,93,93,0,0.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA Y LEON,Traumatología,Tiempo medio de espera quirúrgica,días,136,112,-24,-17.65,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA Y LEON,Urología,Tiempo medio de espera quirúrgica,días,94,107,13,13.83,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA-LA MANCHA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,101,96,-5,-4.95,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA-LA MANCHA,Ginecología,Tiempo medio de espera quirúrgica,días,102,95,-7,-6.86,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA-LA MANCHA,Oftalmología,Tiempo medio de espera quirúrgica,días,111,110,-1,-0.9,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA-LA MANCHA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,131,149,18,13.74,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA-LA MANCHA,Traumatología,Tiempo medio de espera quirúrgica,días,113,113,0,0.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CASTILLA-LA MANCHA,Urología,Tiempo medio de espera quirúrgica,días,110,117,7,6.36,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CATALUÑA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,152,150,-2,-1.32,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CATALUÑA,Ginecología,Tiempo medio de espera quirúrgica,días,122,122,0,0.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CATALUÑA,Oftalmología,Tiempo medio de espera quirúrgica,días,93,92,-1,-1.08,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CATALUÑA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,166,166,0,0.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CATALUÑA,Traumatología,Tiempo medio de espera quirúrgica,días,153,154,1,0.65,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CATALUÑA,Urología,Tiempo medio de espera quirúrgica,días,146,143,-3,-2.05,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,COMUNIDAD VALENCIANA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,80,66,-14,-17.5,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,COMUNIDAD VALENCIANA,Ginecología,Tiempo medio de espera quirúrgica,días,79,73,-6,-7.59,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,COMUNIDAD VALENCIANA,Oftalmología,Tiempo medio de espera quirúrgica,días,65,55,-10,-15.38,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,COMUNIDAD VALENCIANA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,98,115,17,17.35,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,COMUNIDAD VALENCIANA,Traumatología,Tiempo medio de espera quirúrgica,días,104,99,-5,-4.81,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,COMUNIDAD VALENCIANA,Urología,Tiempo medio de espera quirúrgica,días,115,111,-4,-3.48,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,EXTREMADURA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,125,103,-22,-17.6,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,EXTREMADURA,Ginecología,Tiempo medio de espera quirúrgica,días,67,67,0,0.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,EXTREMADURA,Oftalmología,Tiempo medio de espera quirúrgica,días,66,68,2,3.03,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,EXTREMADURA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,100,92,-8,-8.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,EXTREMADURA,Traumatología,Tiempo medio de espera quirúrgica,días,261,192,-69,-26.44,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,EXTREMADURA,Urología,Tiempo medio de espera quirúrgica,días,183,136,-47,-25.68,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,GALICIA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,63,64,1,1.59,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,GALICIA,Ginecología,Tiempo medio de espera quirúrgica,días,60,48,-12,-20.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,GALICIA,Oftalmología,Tiempo medio de espera quirúrgica,días,64,68,4,6.25,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,GALICIA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,71,97,26,36.62,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,GALICIA,Traumatología,Tiempo medio de espera quirúrgica,días,77,88,11,14.29,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,GALICIA,Urología,Tiempo medio de espera quirúrgica,días,64,65,1,1.56,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MADRID,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,43,44,1,2.33,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MADRID,Ginecología,Tiempo medio de espera quirúrgica,días,42,47,5,11.9,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MADRID,Oftalmología,Tiempo medio de espera quirúrgica,días,43,44,1,2.33,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MADRID,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,57,55,-2,-3.51,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MADRID,Traumatología,Tiempo medio de espera quirúrgica,días,52,54,2,3.85,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MADRID,Urología,Tiempo medio de espera quirúrgica,días,50,48,-2,-4.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MURCIA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,116,99,-17,-14.66,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MURCIA,Ginecología,Tiempo medio de espera quirúrgica,días,87,80,-7,-8.05,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MURCIA,Oftalmología,Tiempo medio de espera quirúrgica,días,88,89,1,1.14,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MURCIA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,109,109,0,0.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MURCIA,Traumatología,Tiempo medio de espera quirúrgica,días,117,113,-4,-3.42,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MURCIA,Urología,Tiempo medio de espera quirúrgica,días,110,96,-14,-12.73,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,C. FORAL DE NAVARRA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,91,68,-23,-25.27,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,C. FORAL DE NAVARRA,Ginecología,Tiempo medio de espera quirúrgica,días,76,65,-11,-14.47,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,C. FORAL DE NAVARRA,Oftalmología,Tiempo medio de espera quirúrgica,días,53,56,3,5.66,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,C. FORAL DE NAVARRA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,99,120,21,21.21,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,C. FORAL DE NAVARRA,Traumatología,Tiempo medio de espera quirúrgica,días,115,117,2,1.74,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,C. FORAL DE NAVARRA,Urología,Tiempo medio de espera quirúrgica,días,62,55,-7,-11.29,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PAÍS VASCO,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,52,56,4,7.69,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PAÍS VASCO,Ginecología,Tiempo medio de espera quirúrgica,días,39,38,-1,-2.56,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PAÍS VASCO,Oftalmología,Tiempo medio de espera quirúrgica,días,50,57,7,14.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PAÍS VASCO,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,64,71,7,10.94,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PAÍS VASCO,Traumatología,Tiempo medio de espera quirúrgica,días,68,78,10,14.71,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,PAÍS VASCO,Urología,Tiempo medio de espera quirúrgica,días,56,55,-1,-1.79,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,RIOJA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,57,64,7,12.28,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,RIOJA,Ginecología,Tiempo medio de espera quirúrgica,días,51,74,23,45.1,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,RIOJA,Oftalmología,Tiempo medio de espera quirúrgica,días,53,73,20,37.74,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,RIOJA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,76,77,1,1.32,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,RIOJA,Traumatología,Tiempo medio de espera quirúrgica,días,70,91,21,30.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,RIOJA,Urología,Tiempo medio de espera quirúrgica,días,81,78,-3,-3.7,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CEUTA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,37,47,10,27.03,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CEUTA,Ginecología,Tiempo medio de espera quirúrgica,días,56,75,19,33.93,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CEUTA,Oftalmología,Tiempo medio de espera quirúrgica,días,73,63,-10,-13.7,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CEUTA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,134,135,1,0.75,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CEUTA,Traumatología,Tiempo medio de espera quirúrgica,días,69,70,1,1.45,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,CEUTA,Urología,Tiempo medio de espera quirúrgica,días,25,138,113,452.0,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MELILLA,Cirugía general y digestiva,Tiempo medio de espera quirúrgica,días,106,76,-30,-28.3,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MELILLA,Ginecología,Tiempo medio de espera quirúrgica,días,151,59,-92,-60.93,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MELILLA,Oftalmología,Tiempo medio de espera quirúrgica,días,163,77,-86,-52.76,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MELILLA,Otorrinolaringología,Tiempo medio de espera quirúrgica,días,239,125,-114,-47.7,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MELILLA,Traumatología,Tiempo medio de espera quirúrgica,días,88,97,9,10.23,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
+Sanidad,MELILLA,Urología,Tiempo medio de espera quirúrgica,días,128,57,-71,-55.47,SISLE-SNS 31-12-2024 p.4,SISLE-SNS 31-12-2025 p.4
