@@ -10,7 +10,7 @@ CSV = BASE / "RADAR_PUBLICO_sanidad_2024_2025.csv"
 
 # Documentación primaria del Ministerio de Sanidad.
 FUENTE_2024 = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/LISTAS_PUBLICACION_dic2024.pdf"
-FUENTE_2025 = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/Informe_situacion_listas_de_espera_dic_2025_V1.pdf"
+FUENTE_2025 = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/Datos_ccaa_dic2025_rectificado.pdf"
 PORTAL_FUENTES = "https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/listaEspera.htm"
 RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los informes de "
                  "diciembre de 2025 tras una rectificación de los datos aportados "
@@ -29,7 +29,7 @@ div[data-testid="stMetricLabel"] {font-size: 0.86rem;}
 div[data-testid="stMetricValue"] {font-size: 1.65rem;}
 </style>""", unsafe_allow_html=True)
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.7 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.8 · IA experimental · Datos de cortes anuales, no en tiempo real")
 if st.session_state.get("sector") != "Inicio · Hallazgos":
     st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
@@ -81,6 +81,12 @@ def cargar_trenes():
 df = cargar_datos()
 with st.sidebar:
     st.header("Filtros y criterios")
+    with st.expander("🗓️ Datos y actualización", expanded=False):
+        st.caption("Sanidad: diciembre 2024 y diciembre 2025 (versión rectificada 24/09/2026).")
+        st.caption("Correos: ejercicios 2023 y 2024. Trenes: ejercicios 2024 y 2025, solo Cercanías Madrid.")
+        st.warning("Actualización manual y supervisada: los indicadores NO se actualizan automáticamente al publicarse nuevas fuentes.")
+        st.markdown(f"[Ministerio de Sanidad]({PORTAL_FUENTES}) · [Renfe 2025]({RENFE_TRENES_2025})")
+        st.caption("Antes de sustituir datos: verificar metodología, guardar versión anterior, actualizar fuentes y ejecutar la auditoría.")
     sector = st.selectbox("Sección", ["Inicio · Hallazgos", "Sanidad", "Correos", "Trenes"], key="sector")
     if sector == "Sanidad":
         st.subheader("Umbrales provisionales")
@@ -883,9 +889,9 @@ with pestana3:
     st.markdown("""### Fuentes y alcance
 - Ministerio de Sanidad, Sistema de Información sobre Listas de Espera del SNS (SISLE-SNS), **31 de diciembre de 2024 y 31 de diciembre de 2025**, tablas de tiempos medios de espera por especialidad y territorio, página 4 de cada documento.
 - [Informe oficial de diciembre de 2024](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/LISTAS_PUBLICACION_dic2024.pdf).
-- [Informe oficial de diciembre de 2025](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/Informe_situacion_listas_de_espera_dic_2025_V1.pdf).
+- [Informe oficial de diciembre de 2025](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/docs/Datos_ccaa_dic2025_rectificado.pdf).
 - [Portal oficial y actualizaciones del Ministerio](https://www.sanidad.gob.es/estadEstudios/estadisticas/inforRecopilaciones/listaEspera.htm).
-- **Rectificación de 24 de septiembre de 2026:** actualización de los informes de diciembre de 2025 por datos de Castilla-La Mancha. Se han contrastado los seis valores de 2025 de Castilla-La Mancha del CSV con el informe actualizado; esta comprobación no constituye una auditoría de las 114 comparaciones.
+- **Rectificación de 24 de septiembre de 2026:** actualización de los informes de diciembre de 2025 por datos de Castilla-La Mancha. La auditoría documental de la etapa 2 cotejó las 228 cifras de los 114 pares territorio-especialidad con los PDF oficiales de 2024 y 2025 rectificado; no valida los registros hospitalarios de origen.
 
 - Cada fila corresponde a **una especialidad en un territorio**, no a la media quirúrgica total.
 - Los cambios se calculan como `días_2025 − días_2024` y el porcentaje como `100 × cambio / días_2024`.
