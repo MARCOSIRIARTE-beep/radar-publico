@@ -20,7 +20,7 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.2 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.3 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -37,10 +37,41 @@ def cargar_datos():
     datos["variacion_porcentual"] = (datos["variacion_dias"] / datos["valor_2024"].replace(0, float("nan"))) * 100
     return datos
 
+# Fuentes primarias ferroviarias: cifras publicadas por Renfe en sus cartas de servicios.
+RENFE_TRENES_2024 = "https://www.renfe.com/es/en/suburban/suburban-madrid/customer-service/menu-of-services/cumplimiento-compromisos/ano-2024"
+RENFE_TRENES_2025 = "https://www.renfe.com/es/es/cercanias/cercanias-madrid/atencion-al-cliente/carta-servicios/cumplimiento-compromisos/ano-2025"
+RENFE_COMPROMISOS = "https://www.renfe.com/es/es/cercanias/cercanias-madrid/atencion-al-cliente/carta-servicios"
+CNMC_FERRO_2025 = "https://www.cnmc.es/prensa/inf-anual-ferro-25-20260717"
+
+# Series 2024 y 2025 publicadas por Renfe para la misma definición de puntualidad.
+# Se incluyen trenes suprimidos/no circulados como impuntuales, según la fuente.
+PUNTUALIDAD_MADRID = {
+    "C1": (95.15, 98.37), "C2": (95.09, 91.76),
+    "C3": (96.31, 94.29), "C4a": (95.48, 94.10),
+    "C4b": (94.62, 94.11), "C5": (96.86, 95.11),
+    "C7": (92.58, 89.81), "C8a": (95.72, 93.17),
+    "C8b": (95.00, 91.64), "C10": (96.14, 90.75),
+}
+
+@st.cache_data
+def cargar_trenes():
+    datos = pd.DataFrame([
+        {"linea": linea, "puntualidad_2024": v[0], "puntualidad_2025": v[1]}
+        for linea, v in PUNTUALIDAD_MADRID.items()
+    ])
+    datos["cambio_pp"] = (datos["puntualidad_2025"] - datos["puntualidad_2024"]).round(2)
+    datos["bajo_compromiso_2025"] = datos["puntualidad_2025"] < 96
+    datos["situacion"] = datos.apply(
+        lambda r: ("Empeora y queda bajo el 96 %" if r["cambio_pp"] < 0 and r["bajo_compromiso_2025"]
+                   else "Mejora, pero queda bajo el 96 %" if r["bajo_compromiso_2025"]
+                   else "Alcanza el 96 %"), axis=1)
+    return datos
+
+
 df = cargar_datos()
 with st.sidebar:
     st.header("Filtros y criterios")
-    sector = st.selectbox("Sección", ["Inicio · Hallazgos", "Sanidad", "Correos", "Trenes (próximamente)"])
+    sector = st.selectbox("Sección", ["Inicio · Hallazgos", "Sanidad", "Correos", "Trenes"])
     if sector == "Sanidad":
         st.subheader("Umbrales provisionales")
         alta_dias = st.number_input("Alerta alta · mínimo de días", min_value=1, max_value=365, value=20)
@@ -51,7 +82,7 @@ with st.sidebar:
 
 if sector == "Inicio · Hallazgos":
     st.header("📰 Hallazgos para investigar")
-    st.caption("Selección automática de pistas periodísticas de Sanidad (2024–2025) y Correos (2023–2024). No son noticias verificadas ni un ranking de gravedad entre sectores.")
+    st.caption("Selección automática de pistas periodísticas de Sanidad (2024–2025), Correos (2023–2024) y Trenes (2024–2025). No son noticias verificadas ni un ranking de gravedad entre sectores.")
 
     postal_csv = BASE / "RADAR_PUBLICO_correos_2023_2024.csv"
     if postal_csv.exists():
@@ -99,7 +130,7 @@ if sector == "Inicio · Hallazgos":
     st.caption(
         "Selección orientativa y reproducible, basada en reglas explícitas; no es una "
         "medición de gravedad social ni una clasificación comparable entre sectores. "
-        "Se reserva una pista para cada sector cuando hay datos suficientes."
+        "Se reserva una pista para cada uno de los tres sectores con datos disponibles."
     )
 
     # Orden de trabajo editorial, no puntuación artificial entre sectores:
@@ -187,6 +218,22 @@ if sector == "Inicio · Hallazgos":
             "fuentes": [("Ministerio de Sanidad 2024", FUENTE_2024),
                         ("Ministerio de Sanidad 2025", FUENTE_2025)]
         })
+
+    # La tercera pista corresponde a Trenes, no a un segundo caso postal.
+    trenes_inicio = cargar_trenes().sort_values(["cambio_pp", "linea"])
+    if not trenes_inicio.empty:
+        r = trenes_inicio.iloc[0]
+        pista_tren = {
+            "sector": "Trenes", "etiqueta": "Mayor caída de puntualidad en Cercanías Madrid",
+            "titulo": f"Cercanías Madrid: la línea {r['linea']} registra la mayor caída de puntualidad",
+            "dato": (f"2024: {r['puntualidad_2024']:.2f} %; "
+                     f"2025: {r['puntualidad_2025']:.2f} %; "
+                     f"cambio: {r['cambio_pp']:+.2f} puntos porcentuales."),
+            "motivo": "Mayor descenso interanual entre las diez líneas de Cercanías Madrid publicadas por Renfe.",
+            "pendiente": "Pedir circulaciones, supresiones y causas documentadas; no atribuir automáticamente la caída a Renfe o Adif.",
+            "fuentes": [("Renfe 2024", RENFE_TRENES_2024), ("Renfe 2025", RENFE_TRENES_2025)]
+        }
+        candidatos = [c for c in candidatos if c["sector"] != "Trenes"][:2] + [pista_tren]
 
     if not candidatos:
         st.info("No hay suficientes indicadores para proponer pistas de investigación.")
@@ -309,12 +356,72 @@ if sector == "Inicio · Hallazgos":
         st.caption("Cada cifra y su comparabilidad requieren contraste en los PDF originales antes de publicar.")
 
     st.divider()
-    st.markdown("**Para profundizar:** utiliza el selector «Sección» de la izquierda para entrar en Sanidad o Correos, "
+    st.markdown("**Para profundizar:** utiliza el selector «Sección» de la izquierda para entrar en Sanidad, Correos o Trenes, "
                 "abrir las fichas de investigación, consultar las fuentes y, si procede, usar la IA privada.")
     st.stop()
 
-if sector == "Trenes (próximamente)":
-    st.warning("Este sector aún no dispone de datos contrastados.")
+if sector == "Trenes":
+    st.header("🚆 Trenes · Puntualidad de Cercanías Madrid")
+    st.caption("Datos anuales 2024–2025 · Diez líneas · Fuente primaria: Renfe")
+    st.info("El indicador mide el porcentaje de trenes que llegan a destino con cinco minutos o menos de retraso. Renfe cuenta los trenes suprimidos o no circulados como impuntuales. El 96 % es el compromiso general recogido en su carta de servicios; no equivale a una sanción regulatoria ni identifica causas.")
+    trenes = cargar_trenes()
+    peor = trenes.sort_values(["cambio_pp", "linea"]).iloc[0]
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Líneas analizadas", len(trenes))
+    c2.metric("Bajo el 96 % en 2025", int(trenes["bajo_compromiso_2025"].sum()))
+    c3.metric("Líneas que empeoran", int((trenes["cambio_pp"] < 0).sum()))
+    c4.metric("Mayor caída", f"{peor['linea']}: {peor['cambio_pp']:+.2f} pp".replace(".", ","))
+
+    st.subheader("🔎 Pistas periodísticas")
+    st.warning(
+        f"**{peor['linea']}: la mayor caída de puntualidad entre las líneas analizadas.** "
+        f"Pasa del {peor['puntualidad_2024']:.2f} % en 2024 al {peor['puntualidad_2025']:.2f} % en 2025 "
+        f"({peor['cambio_pp']:+.2f} puntos porcentuales). "
+        "Preguntar por el número de circulaciones, supresiones, obras, incidencias y criterios de cómputo antes de atribuir responsabilidades."
+    )
+    st.caption("La caída más intensa se determina por puntos porcentuales, no por número de pasajeros afectados; no se dispone aquí de esos denominadores.")
+
+    st.subheader("Comparar líneas")
+    seleccion = st.multiselect("Líneas", sorted(trenes["linea"].tolist()), default=sorted(trenes["linea"].tolist()))
+    vista = trenes[trenes["linea"].isin(seleccion)].sort_values("cambio_pp")
+    if vista.empty:
+        st.info("Selecciona al menos una línea.")
+    else:
+        st.dataframe(vista.rename(columns={"linea":"Línea", "puntualidad_2024":"2024 (%)", "puntualidad_2025":"2025 (%)", "cambio_pp":"Cambio (pp)", "bajo_compromiso_2025":"Bajo 96 %", "situacion":"Lectura editorial"}), hide_index=True, use_container_width=True)
+        graf = vista.melt(id_vars="linea", value_vars=["puntualidad_2024", "puntualidad_2025"], var_name="Año", value_name="Puntualidad (%)")
+        graf["Año"] = graf["Año"].map({"puntualidad_2024":"2024", "puntualidad_2025":"2025"})
+        fig = px.bar(graf, x="linea", y="Puntualidad (%)", color="Año", barmode="group", title="Puntualidad anual por línea (porcentaje)")
+        fig.update_layout(xaxis_title="Línea", yaxis_range=[0, 100])
+        st.plotly_chart(fig, use_container_width=True)
+        st.download_button("Descargar comparación ferroviaria (CSV)", vista.to_csv(index=False).encode("utf-8-sig"), file_name="RADAR_PUBLICO_trenes_madrid_2024_2025.csv", mime="text/csv")
+
+    st.subheader("Ficha para investigar")
+    linea_elegida = st.selectbox("Línea que quieres investigar", trenes.sort_values("cambio_pp")["linea"].tolist())
+    r = trenes.loc[trenes["linea"] == linea_elegida].iloc[0]
+    st.markdown(f"**{linea_elegida}: del {r['puntualidad_2024']:.2f} % al {r['puntualidad_2025']:.2f} % ({r['cambio_pp']:+.2f} pp).**")
+    st.write("**Qué sabemos:** porcentaje anual de llegadas puntuales según Renfe; se incluyen las supresiones como impuntualidad.")
+    st.write("**Qué falta:** total de circulaciones, número de trenes suprimidos, distribución mensual, número de usuarios y causas documentadas de los retrasos.")
+    st.write("**A quién preguntar:** Renfe por operación y supresiones; Adif por posibles incidencias de infraestructura, solo cuando estén documentadas.")
+    st.markdown(f"**Fuentes:** [Renfe 2024]({RENFE_TRENES_2024}) · [Renfe 2025]({RENFE_TRENES_2025}) · [Carta de servicios]({RENFE_COMPROMISOS})")
+    a = st.checkbox("He contrastado las cifras con Renfe 2024 y 2025", key=f"tren_{linea_elegida}_fuente")
+    b = st.checkbox("He comprobado metodología, supresiones y comparabilidad", key=f"tren_{linea_elegida}_metodo")
+    c = st.checkbox("He solicitado contraste y registrado la respuesta o ausencia", key=f"tren_{linea_elegida}_contraste")
+    estado = "LISTA PARA REVISIÓN EDITORIAL" if a and b and c else "EN CONTRASTE" if a or b or c else "DETECTADA"
+    if a and b and c:
+        st.success("🟢 LISTA PARA REVISIÓN EDITORIAL · Declaración del periodista; no autoriza publicación.")
+    elif a or b or c:
+        st.warning("🟠 EN CONTRASTE")
+    else:
+        st.error("🔴 DETECTADA")
+    ficha = ["RADAR PÚBLICO — TRENES", f"Línea: {linea_elegida}", f"Puntualidad 2024: {r['puntualidad_2024']:.2f} %", f"Puntualidad 2025: {r['puntualidad_2025']:.2f} %", f"Variación: {r['cambio_pp']:+.2f} pp", f"Fuente 2024: {RENFE_TRENES_2024}", f"Fuente 2025: {RENFE_TRENES_2025}", "Método: llegadas a destino con retraso de 5 minutos o menos; suprimidos/no circulados, impuntuales.", f"Cifras revisadas: {'sí' if a else 'no'}", f"Método revisado: {'sí' if b else 'no'}", f"Contraste solicitado: {'sí' if c else 'no'}", f"Estado: {estado}", "Control editorial manual; no acredita verificación ni autoriza publicación."]
+    st.download_button("Descargar ficha de investigación (TXT)", ("\n".join(ficha)+"\n").encode("utf-8-sig"), file_name=f"RADAR_trenes_{linea_elegida}.txt", mime="text/plain")
+
+    st.divider()
+    st.subheader("Contexto nacional: actividad ferroviaria")
+    st.metric("Alta velocidad comercial, 2025", "44,5 millones de viajeros", "+12 % frente a 2024")
+    st.caption("Dato nacional de la CNMC; mide demanda, no puntualidad. No se compara con las líneas de Cercanías Madrid.")
+    st.markdown(f"[Informe anual ferroviario 2025 de la CNMC]({CNMC_FERRO_2025})")
+    st.info("Cobertura inicial: Cercanías Madrid. No hay aún una base homogénea y validada de puntualidad de toda España ni de alta velocidad por operador y corredor. No se inventan esas comparaciones.")
     st.stop()
 
 
@@ -733,7 +840,7 @@ with pestana3:
 
 ### Próximas iteraciones
 1. Incorporar más años y controles de comparabilidad.
-2. Ampliar y auditar la serie postal de la CNMC y validar datos ferroviarios antes de activar trenes.
+2. Ampliar la serie postal y extender los datos ferroviarios más allá de Cercanías Madrid.
 3. Extender la verificación documental y mejorar los análisis con IA sin presentar sus respuestas como fuentes autónomas.
 """)
 st.divider()
