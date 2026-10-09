@@ -20,7 +20,7 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.9 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.0 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -92,6 +92,117 @@ if sector == "Inicio · Hallazgos":
     k2.metric("Alertas medias · Sanidad", len(medias_inicio))
     k3.metric("Incumplimientos · Correos 2024", int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—")
     k4.metric("Nuevos incumplimientos · Correos", len(nuevos))
+
+
+    st.divider()
+    st.subheader("🎯 Tres pistas para investigar primero")
+    st.caption(
+        "Selección orientativa y reproducible, basada en reglas explícitas; no es una "
+        "medición de gravedad social ni una clasificación comparable entre sectores. "
+        "Se reserva una pista para cada sector cuando hay datos suficientes."
+    )
+
+    # Orden de trabajo editorial, no puntuación artificial entre sectores:
+    # 1) nuevo incumplimiento regulatorio postal;
+    # 2) mayor aumento absoluto de espera entre alertas altas sanitarias;
+    # 3) incumplimiento postal persistente que empeora, o segunda alerta sanitaria.
+    candidatos = []
+    if not nuevos.empty:
+        postal_nuevo = nuevos.copy()
+        postal_nuevo["exceso_relativo"] = postal_nuevo.apply(
+            lambda r: ((r["valor_2024"] - r["objetivo_oficial"]) / r["objetivo_oficial"])
+            if r["sentido_objetivo"] == "max"
+            else ((r["objetivo_oficial"] - r["valor_2024"]) / r["objetivo_oficial"]),
+            axis=1
+        )
+        r = postal_nuevo.sort_values(
+            ["exceso_relativo", "indicador"], ascending=[False, True]
+        ).iloc[0]
+        candidatos.append({
+            "sector": "Correos", "etiqueta": "Nuevo incumplimiento regulatorio",
+            "titulo": f"Correos deja de cumplir el objetivo de {r['indicador']}",
+            "dato": (f"2023: {r['valor_2023']:g} {r['unidad']}; "
+                     f"2024: {r['valor_2024']:g} {r['unidad']}; "
+                     f"objetivo: {'≤' if r['sentido_objetivo']=='max' else '≥'} "
+                     f"{r['objetivo_oficial']:g} {r['unidad']}."),
+            "motivo": "Pasa de cumplir en 2023 a incumplir en 2024, según los valores oficiales.",
+            "pendiente": ("Comprobar la metodología y las exclusiones por DANA; "
+                          "solicitar a Correos explicación y medidas correctoras."),
+            "fuentes": [(f"CNMC 2023, p. {int(r['pagina_2023'])}",
+                         f"{r['fuente_2023']}#page={int(r['pagina_2023'])}"),
+                        (f"CNMC 2024, p. {int(r['pagina_2024'])}",
+                         f"{r['fuente_2024']}#page={int(r['pagina_2024'])}")]
+        })
+
+    if not altas_inicio.empty:
+        r = altas_inicio.iloc[0]
+        candidatos.append({
+            "sector": "Sanidad", "etiqueta": "Mayor aumento de espera entre alertas altas",
+            "titulo": f"{str(r['territorio']).title()}: aumenta la espera en {str(r['especialidad']).lower()}",
+            "dato": (f"2024: {r['valor_2024']:g} días; 2025: {r['valor_2025']:g} días; "
+                     f"aumento: {r['variacion_dias']:+g} días "
+                     f"({r['variacion_porcentual']:+.1f}%)."),
+            "motivo": "Mayor incremento absoluto entre las alertas sanitarias altas con umbrales predeterminados.",
+            "pendiente": ("Verificar la comparabilidad de los datos, el volumen de pacientes "
+                          "y la rectificación de septiembre de 2026; solicitar respuesta al servicio de salud."),
+            "fuentes": [("Ministerio de Sanidad 2024", FUENTE_2024),
+                        ("Ministerio de Sanidad 2025", FUENTE_2025),
+                        ("Portal de rectificaciones", PORTAL_FUENTES)]
+        })
+
+    terceros = persistentes[persistentes["empeora"]].copy() if not persistentes.empty else pd.DataFrame()
+    if not terceros.empty:
+        terceros["exceso_relativo"] = terceros.apply(
+            lambda r: ((r["valor_2024"] - r["objetivo_oficial"]) / r["objetivo_oficial"])
+            if r["sentido_objetivo"] == "max"
+            else ((r["objetivo_oficial"] - r["valor_2024"]) / r["objetivo_oficial"]),
+            axis=1
+        )
+        r = terceros.sort_values(
+            ["exceso_relativo", "indicador"], ascending=[False, True]
+        ).iloc[0]
+        candidatos.append({
+            "sector": "Correos", "etiqueta": "Incumplimiento persistente que empeora",
+            "titulo": f"Correos empeora en {r['indicador']} y sigue fuera del objetivo",
+            "dato": (f"2023: {r['valor_2023']:g} {r['unidad']}; "
+                     f"2024: {r['valor_2024']:g} {r['unidad']}; "
+                     f"objetivo: {'≤' if r['sentido_objetivo']=='max' else '≥'} "
+                     f"{r['objetivo_oficial']:g} {r['unidad']}."),
+            "motivo": "Empeora interanualmente y continúa incumpliendo el umbral oficial.",
+            "pendiente": "Revisar las causas, las exclusiones de la CNMC y pedir explicación a Correos.",
+            "fuentes": [(f"CNMC 2023, p. {int(r['pagina_2023'])}",
+                         f"{r['fuente_2023']}#page={int(r['pagina_2023'])}"),
+                        (f"CNMC 2024, p. {int(r['pagina_2024'])}",
+                         f"{r['fuente_2024']}#page={int(r['pagina_2024'])}")]
+        })
+    elif len(altas_inicio) > 1:
+        r = altas_inicio.iloc[1]
+        candidatos.append({
+            "sector": "Sanidad", "etiqueta": "Segunda mayor subida de espera",
+            "titulo": f"{str(r['territorio']).title()}: aumenta la espera en {str(r['especialidad']).lower()}",
+            "dato": (f"2024: {r['valor_2024']:g} días; 2025: {r['valor_2025']:g} días; "
+                     f"aumento: {r['variacion_dias']:+g} días."),
+            "motivo": "Segundo mayor incremento absoluto entre las alertas sanitarias altas.",
+            "pendiente": "Comprobar cifras, contexto y comparabilidad con la fuente sanitaria.",
+            "fuentes": [("Ministerio de Sanidad 2024", FUENTE_2024),
+                        ("Ministerio de Sanidad 2025", FUENTE_2025)]
+        })
+
+    if not candidatos:
+        st.info("No hay suficientes indicadores para proponer pistas de investigación.")
+    else:
+        for posicion, caso in enumerate(candidatos[:3], 1):
+            with st.container(border=True):
+                st.markdown(f"**{posicion}. {caso['titulo']}**")
+                st.caption(f"{caso['sector']} · {caso['etiqueta']}")
+                st.write(f"**Dato:** {caso['dato']}")
+                st.write(f"**Por qué investigarlo:** {caso['motivo']}")
+                st.write(f"**Antes de publicar:** {caso['pendiente']}")
+                st.markdown("**Fuentes:** " + " · ".join(
+                    f"[{nombre}]({url})" for nombre, url in caso["fuentes"]
+                ))
+        st.caption("Orden editorial por categorías, no ranking estadístico. "
+                   "Las etiquetas de RADAR PÚBLICO son cálculos propios, no declaraciones de la fuente.")
 
     st.subheader("📮 Correos: objetivos regulatorios")
     if not postal_inicio.empty:
