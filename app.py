@@ -20,7 +20,7 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.1 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.2 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -195,11 +195,11 @@ if sector == "Inicio · Hallazgos":
         st.caption(
             "🔴 Detectada: pista automática sin revisión · "
             "🟠 En contraste: investigación iniciada · "
-            "🟢 Documentada para revisión: verificaciones marcadas y evidencia registrada. "
+            "🟢 Lista para revisión: tres comprobaciones declaradas por el periodista. "
             "Ningún estado significa 'publicable' ni sustituye la aprobación editorial."
         )
         st.info(
-            "Las marcas y las notas solo se conservan durante esta sesión del navegador. "
+            "Las marcas solo se conservan durante esta sesión del navegador. "
             "No se guardan en GitHub ni se comparten con otros usuarios."
         )
         for posicion, caso in enumerate(candidatos[:3], 1):
@@ -229,39 +229,42 @@ if sector == "Inicio · Hallazgos":
                     "He solicitado contraste a la fuente implicada y registrado su respuesta o ausencia",
                     key=f"{clave_caso}_contraste"
                 )
-                notas = st.text_area(
-                    "Evidencias y comprobaciones (fuentes, fechas, respuesta y dudas pendientes)",
-                    key=f"{clave_caso}_notas",
-                    placeholder="Ej.: informe oficial, página, fecha de consulta, respuesta recibida...",
-                    height=100
-                )
-                iniciado = fuente or metodo or contraste or bool(notas.strip())
-                completo = fuente and metodo and contraste and len(notas.strip()) >= 30
+                # Las casillas son declaraciones del periodista, no verificaciones automáticas.
+                iniciado = fuente or metodo or contraste
+                completo = fuente and metodo and contraste
                 if completo:
-                    st.success("🟢 DOCUMENTADA PARA REVISIÓN EDITORIAL · Requiere aprobación humana antes de publicar.")
+                    st.success("🟢 LISTA PARA REVISIÓN EDITORIAL · Comprobaciones declaradas por el periodista; requiere aprobación humana.")
                 elif iniciado:
-                    st.warning("🟠 EN CONTRASTE · Quedan comprobaciones o evidencias pendientes.")
+                    st.warning("🟠 EN CONTRASTE · Quedan comprobaciones pendientes.")
                 else:
                     st.error("🔴 DETECTADA · Pista automática, todavía sin verificar editorialmente.")
-                if fuente and metodo and contraste and not completo:
-                    st.caption("Para pasar a revisión, registra al menos 30 caracteres de evidencias.")
+
+                estado = ("LISTA PARA REVISIÓN EDITORIAL" if completo
+                          else "EN CONTRASTE" if iniciado else "DETECTADA")
+                lineas_ficha = [
+                    "RADAR PÚBLICO — FICHA DE SEGUIMIENTO",
+                    f"Sector: {caso['sector']}",
+                    f"Pista: {caso['titulo']}",
+                    f"Dato: {caso['dato']}",
+                    f"Motivo: {caso['motivo']}",
+                    f"Pendiente: {caso['pendiente']}",
+                    "",
+                    "FUENTES OFICIALES",
+                    *[f"- {nombre}: {url}" for nombre, url in caso["fuentes"]],
+                    "",
+                    "CONTROL EDITORIAL (DECLARACIÓN MANUAL)",
+                    f"Cifras contrastadas con documentos originales: {'sí' if fuente else 'no'}",
+                    f"Metodología y comparabilidad comprobadas: {'sí' if metodo else 'no'}",
+                    f"Contraste solicitado y resultado registrado por el periodista: {'sí' if contraste else 'no'}",
+                    f"Estado: {estado}",
+                    "",
+                    "Las casillas no acreditan por sí solas que las comprobaciones se hayan realizado.",
+                    "La ficha recoge datos y fuentes de RADAR PÚBLICO, pero no adjunta pruebas externas.",
+                    "Requiere revisión y aprobación humana antes de publicar.",
+                ]
                 st.download_button(
                     "Descargar ficha de seguimiento (TXT)",
-                    data=(
-                        f"RADAR PÚBLICO — FICHA DE SEGUIMIENTO\\n"
-                        f"Sector: {caso['sector']}\\n"
-                        f"Pista: {caso['titulo']}\\n"
-                        f"Dato: {caso['dato']}\\n"
-                        f"Motivo: {caso['motivo']}\\n"
-                        f"Pendiente: {caso['pendiente']}\\n"
-                        f"Fuentes: " + "; ".join(f"{n}: {u}" for n, u in caso["fuentes"]) + "\\n"
-                        f"Verificación de cifras: {'sí' if fuente else 'no'}\\n"
-                        f"Verificación de metodología: {'sí' if metodo else 'no'}\\n"
-                        f"Contraste solicitado: {'sí' if contraste else 'no'}\\n"
-                        f"Notas: {notas}\\n"
-                        f"Estado: {'DOCUMENTADA PARA REVISIÓN' if completo else 'EN CONTRASTE' if iniciado else 'DETECTADA'}\\n"
-                        "Estado autodeclarado; no implica aprobación editorial ni verificación automática.\\n"
-                    ).encode("utf-8-sig"),
+                    data=("\n".join(lineas_ficha) + "\n").encode("utf-8-sig"),
                     file_name=f"radar_publico_seguimiento_{posicion}.txt",
                     mime="text/plain",
                     key=f"{clave_caso}_descarga"
