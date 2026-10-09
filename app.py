@@ -19,9 +19,19 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
+if "sector" not in st.session_state:
+    st.session_state["sector"] = "Inicio · Hallazgos"
+st.markdown("""<style>
+.block-container {padding-top: 1.1rem; padding-bottom: 1.8rem;}
+h1 {font-size: 2.05rem !important; margin-bottom: 0.15rem !important;}
+div[data-testid="stMetric"] {padding: 0.5rem 0.7rem; background: #f3f6fa; border-radius: 0.6rem;}
+div[data-testid="stMetricLabel"] {font-size: 0.86rem;}
+div[data-testid="stMetricValue"] {font-size: 1.65rem;}
+</style>""", unsafe_allow_html=True)
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.5 · IA experimental · Fuentes verificables")
-st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.6 · IA experimental · Fuentes verificables")
+if st.session_state.get("sector") != "Inicio · Hallazgos":
+    st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
 def cargar_datos():
@@ -71,7 +81,7 @@ def cargar_trenes():
 df = cargar_datos()
 with st.sidebar:
     st.header("Filtros y criterios")
-    sector = st.selectbox("Sección", ["Inicio · Hallazgos", "Sanidad", "Correos", "Trenes"])
+    sector = st.selectbox("Sección", ["Inicio · Hallazgos", "Sanidad", "Correos", "Trenes"], key="sector")
     if sector == "Sanidad":
         st.subheader("Umbrales provisionales")
         alta_dias = st.number_input("Alerta alta · mínimo de días", min_value=1, max_value=365, value=20)
@@ -81,9 +91,6 @@ with st.sidebar:
         st.caption("Una alerta exige superar ambos umbrales del nivel correspondiente.")
 
 if sector == "Inicio · Hallazgos":
-    st.header("📰 RADAR · Portada")
-    st.caption("Selección automática de pistas periodísticas de Sanidad (2024–2025), Correos (2023–2024) y Trenes (2024–2025). No son noticias verificadas ni un ranking de gravedad entre sectores.")
-
     postal_csv = BASE / "RADAR_PUBLICO_correos_2023_2024.csv"
     if postal_csv.exists():
         postal_inicio = pd.read_csv(postal_csv, encoding="utf-8-sig")
@@ -122,8 +129,7 @@ if sector == "Inicio · Hallazgos":
     k1.metric("🏥 Sanidad · Alertas altas", len(altas_inicio))
     k2.metric("📮 Correos · Incumplimientos", int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—")
     k3.metric("🚆 Trenes · Líneas que empeoran", int(cargar_trenes()["cambio_pp"].lt(0).sum()))
-    st.subheader("🎯 Pistas prioritarias")
-    st.caption("Una por sector. Despliega la que quieras investigar. No son noticias verificadas.")
+    st.markdown("### 🎯 Tres pistas para investigar")
 
     # Orden de trabajo editorial, no puntuación artificial entre sectores:
     # 1) nuevo incumplimiento regulatorio postal;
@@ -230,83 +236,82 @@ if sector == "Inicio · Hallazgos":
     if not candidatos:
         st.info("No hay suficientes indicadores para proponer pistas de investigación.")
     else:
-        st.markdown("**Control editorial dentro de cada pista desplegable**")
-        st.caption(
-            "🔴 Detectada: pista automática sin revisión · "
-            "🟠 En contraste: investigación iniciada · "
-            "🟢 Lista para revisión: tres comprobaciones declaradas por el periodista. "
-            "Ningún estado significa 'publicable' ni sustituye la aprobación editorial."
-        )
-        st.caption("Las marcas son temporales y solo se conservan durante esta sesión.")
+        st.caption("Selecciona una tarjeta para abrir los datos, las fuentes y el control editorial.")
+        columnas_pistas = st.columns(3, gap="small")
         for posicion, caso in enumerate(candidatos[:3], 1):
-            with st.expander(f"{posicion}. {caso['sector']} · {caso['titulo']}", expanded=False):
-                st.caption(f"{caso['sector']} · {caso['etiqueta']}")
-                st.write(f"**Dato:** {caso['dato']}")
-                st.write(f"**Por qué investigarlo:** {caso['motivo']}")
-                st.write(f"**Antes de publicar:** {caso['pendiente']}")
-                st.markdown("**Fuentes:** " + " · ".join(
-                    f"[{nombre}]({url})" for nombre, url in caso["fuentes"]
-                ))
+            with columnas_pistas[posicion - 1]:
+                iconos = {"Correos": "📮", "Sanidad": "🏥", "Trenes": "🚆"}
+                etiquetas = {"Correos": "SERVICIO POSTAL", "Sanidad": "LISTAS DE ESPERA", "Trenes": "CERCANÍAS MADRID"}
+                st.caption(f"{iconos.get(caso['sector'], '📊')} {etiquetas.get(caso['sector'], caso['sector'])}")
+                with st.expander(caso["titulo"], expanded=False):
+                    st.caption(f"{caso['sector']} · {caso['etiqueta']}")
+                    st.write(f"**Dato:** {caso['dato']}")
+                    st.write(f"**Por qué investigarlo:** {caso['motivo']}")
+                    st.write(f"**Antes de publicar:** {caso['pendiente']}")
+                    st.markdown("**Fuentes:** " + " · ".join(
+                        f"[{nombre}]({url})" for nombre, url in caso["fuentes"]
+                    ))
 
-                # Identidad estable mientras la pista seleccionada siga siendo la misma.
-                # El estado se mantiene solo en st.session_state, sin almacenamiento externo.
-                clave_caso = f"revision_{caso['sector']}_{caso['titulo']}"
-                st.markdown("**Comprobaciones editoriales (manuales)**")
-                fuente = st.checkbox(
-                    "He abierto y contrastado las cifras con los documentos originales",
-                    key=f"{clave_caso}_fuente"
-                )
-                metodo = st.checkbox(
-                    "He comprobado metodología, comparabilidad y posibles rectificaciones",
-                    key=f"{clave_caso}_metodo"
-                )
-                contraste = st.checkbox(
-                    "He solicitado contraste a la fuente implicada y registrado su respuesta o ausencia",
-                    key=f"{clave_caso}_contraste"
-                )
-                # Las casillas son declaraciones del periodista, no verificaciones automáticas.
-                iniciado = fuente or metodo or contraste
-                completo = fuente and metodo and contraste
-                if completo:
-                    st.success("🟢 LISTA PARA REVISIÓN EDITORIAL · Comprobaciones declaradas por el periodista; requiere aprobación humana.")
-                elif iniciado:
-                    st.warning("🟠 EN CONTRASTE · Quedan comprobaciones pendientes.")
-                else:
-                    st.error("🔴 DETECTADA · Pista automática, todavía sin verificar editorialmente.")
+                    # Identidad estable mientras la pista seleccionada siga siendo la misma.
+                    # El estado se mantiene solo en st.session_state, sin almacenamiento externo.
+                    clave_caso = f"revision_{caso['sector']}_{caso['titulo']}"
+                    st.markdown("**Comprobaciones editoriales (manuales)**")
+                    fuente = st.checkbox(
+                        "He abierto y contrastado las cifras con los documentos originales",
+                        key=f"{clave_caso}_fuente"
+                    )
+                    metodo = st.checkbox(
+                        "He comprobado metodología, comparabilidad y posibles rectificaciones",
+                        key=f"{clave_caso}_metodo"
+                    )
+                    contraste = st.checkbox(
+                        "He solicitado contraste a la fuente implicada y registrado su respuesta o ausencia",
+                        key=f"{clave_caso}_contraste"
+                    )
+                    # Las casillas son declaraciones del periodista, no verificaciones automáticas.
+                    iniciado = fuente or metodo or contraste
+                    completo = fuente and metodo and contraste
+                    if completo:
+                        st.success("🟢 LISTA PARA REVISIÓN EDITORIAL · Comprobaciones declaradas por el periodista; requiere aprobación humana.")
+                    elif iniciado:
+                        st.warning("🟠 EN CONTRASTE · Quedan comprobaciones pendientes.")
+                    else:
+                        st.error("🔴 DETECTADA · Pista automática, todavía sin verificar editorialmente.")
 
-                estado = ("LISTA PARA REVISIÓN EDITORIAL" if completo
-                          else "EN CONTRASTE" if iniciado else "DETECTADA")
-                lineas_ficha = [
-                    "RADAR PÚBLICO — FICHA DE SEGUIMIENTO",
-                    f"Sector: {caso['sector']}",
-                    f"Pista: {caso['titulo']}",
-                    f"Dato: {caso['dato']}",
-                    f"Motivo: {caso['motivo']}",
-                    f"Pendiente: {caso['pendiente']}",
-                    "",
-                    "FUENTES OFICIALES",
-                    *[f"- {nombre}: {url}" for nombre, url in caso["fuentes"]],
-                    "",
-                    "CONTROL EDITORIAL (DECLARACIÓN MANUAL)",
-                    f"Cifras contrastadas con documentos originales: {'sí' if fuente else 'no'}",
-                    f"Metodología y comparabilidad comprobadas: {'sí' if metodo else 'no'}",
-                    f"Contraste solicitado y resultado registrado por el periodista: {'sí' if contraste else 'no'}",
-                    f"Estado: {estado}",
-                    "",
-                    "Las casillas no acreditan por sí solas que las comprobaciones se hayan realizado.",
-                    "La ficha recoge datos y fuentes de RADAR PÚBLICO, pero no adjunta pruebas externas.",
-                    "Requiere revisión y aprobación humana antes de publicar.",
-                ]
-                st.download_button(
-                    "Descargar ficha de seguimiento (TXT)",
-                    data=("\n".join(lineas_ficha) + "\n").encode("utf-8-sig"),
-                    file_name=f"radar_publico_seguimiento_{posicion}.txt",
-                    mime="text/plain",
-                    key=f"{clave_caso}_descarga"
-                )
+                    estado = ("LISTA PARA REVISIÓN EDITORIAL" if completo
+                              else "EN CONTRASTE" if iniciado else "DETECTADA")
+                    lineas_ficha = [
+                        "RADAR PÚBLICO — FICHA DE SEGUIMIENTO",
+                        f"Sector: {caso['sector']}",
+                        f"Pista: {caso['titulo']}",
+                        f"Dato: {caso['dato']}",
+                        f"Motivo: {caso['motivo']}",
+                        f"Pendiente: {caso['pendiente']}",
+                        "",
+                        "FUENTES OFICIALES",
+                        *[f"- {nombre}: {url}" for nombre, url in caso["fuentes"]],
+                        "",
+                        "CONTROL EDITORIAL (DECLARACIÓN MANUAL)",
+                        f"Cifras contrastadas con documentos originales: {'sí' if fuente else 'no'}",
+                        f"Metodología y comparabilidad comprobadas: {'sí' if metodo else 'no'}",
+                        f"Contraste solicitado y resultado registrado por el periodista: {'sí' if contraste else 'no'}",
+                        f"Estado: {estado}",
+                        "",
+                        "Las casillas no acreditan por sí solas que las comprobaciones se hayan realizado.",
+                        "La ficha recoge datos y fuentes de RADAR PÚBLICO, pero no adjunta pruebas externas.",
+                        "Requiere revisión y aprobación humana antes de publicar.",
+                    ]
+                    st.download_button(
+                        "Descargar ficha de seguimiento (TXT)",
+                        data=("\n".join(lineas_ficha) + "\n").encode("utf-8-sig"),
+                        file_name=f"radar_publico_seguimiento_{posicion}.txt",
+                        mime="text/plain",
+                        key=f"{clave_caso}_descarga"
+                    )
         st.caption("Orden editorial por categorías, no ranking estadístico. "
                    "Las etiquetas de RADAR PÚBLICO son cálculos propios, no declaraciones de la fuente.")
 
+    st.markdown("### 📂 Explorar los indicadores")
     with st.expander("📮 Correos · Objetivos regulatorios", expanded=False):
 
         if not postal_inicio.empty:
@@ -369,8 +374,12 @@ if sector == "Inicio · Hallazgos":
         else:
             st.info("No hay datos ferroviarios disponibles.")
 
-    st.markdown("**Para profundizar:** utiliza el selector «Sección» de la izquierda para entrar en Sanidad, Correos o Trenes, "
-                "abrir las fichas de investigación, consultar las fuentes y, si procede, usar la IA privada.")
+    with st.expander("ℹ️ Metodología y uso editorial", expanded=False):
+        st.caption("Sanidad: 2024–2025 · Correos: 2023–2024 · Trenes: 2024–2025 (solo Cercanías Madrid).")
+        st.write("Las pistas son selecciones automáticas, no noticias verificadas ni una clasificación de gravedad entre sectores.")
+        st.write("🔴 Detectada · 🟠 En contraste · 🟢 Lista para revisión editorial. Los estados dependen de marcas manuales y no autorizan la publicación.")
+        st.write("Las marcas se conservan solo durante esta sesión. Los datos no prueban por sí solos causas ni responsabilidades.")
+        st.write("Para profundizar, utiliza el selector «Sección» de la izquierda.")
     st.stop()
 
 if sector == "Trenes":
