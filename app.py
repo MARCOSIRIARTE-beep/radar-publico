@@ -20,7 +20,7 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.8 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 0.9 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -40,7 +40,7 @@ def cargar_datos():
 df = cargar_datos()
 with st.sidebar:
     st.header("Filtros y criterios")
-    sector = st.selectbox("Sector", ["Sanidad", "Correos", "Trenes (próximamente)"])
+    sector = st.selectbox("Sección", ["Inicio · Hallazgos", "Sanidad", "Correos", "Trenes (próximamente)"])
     if sector == "Sanidad":
         st.subheader("Umbrales provisionales")
         alta_dias = st.number_input("Alerta alta · mínimo de días", min_value=1, max_value=365, value=20)
@@ -48,6 +48,91 @@ with st.sidebar:
         media_dias = st.number_input("Alerta media · mínimo de días", min_value=1, max_value=365, value=10)
         media_pct = st.number_input("Alerta media · mínimo porcentual", min_value=1, max_value=500, value=10)
         st.caption("Una alerta exige superar ambos umbrales del nivel correspondiente.")
+
+if sector == "Inicio · Hallazgos":
+    st.header("📰 Hallazgos para investigar")
+    st.caption("Selección automática de pistas periodísticas de Sanidad (2024–2025) y Correos (2023–2024). No son noticias verificadas ni un ranking de gravedad entre sectores.")
+
+    postal_csv = BASE / "RADAR_PUBLICO_correos_2023_2024.csv"
+    if postal_csv.exists():
+        postal_inicio = pd.read_csv(postal_csv, encoding="utf-8-sig")
+        for campo in ["valor_2023", "valor_2024", "objetivo_oficial"]:
+            postal_inicio[campo] = pd.to_numeric(postal_inicio[campo], errors="coerce")
+        postal_inicio = postal_inicio.dropna(subset=["valor_2023", "valor_2024", "objetivo_oficial"]).copy()
+        postal_inicio["cumple_2023"] = postal_inicio.apply(
+            lambda r: r["valor_2023"] <= r["objetivo_oficial"] if r["sentido_objetivo"] == "max"
+            else r["valor_2023"] >= r["objetivo_oficial"], axis=1)
+        postal_inicio["cumple_2024"] = postal_inicio.apply(
+            lambda r: r["valor_2024"] <= r["objetivo_oficial"] if r["sentido_objetivo"] == "max"
+            else r["valor_2024"] >= r["objetivo_oficial"], axis=1)
+        postal_inicio["empeora"] = postal_inicio.apply(
+            lambda r: r["valor_2024"] > r["valor_2023"] if r["sentido_objetivo"] == "max"
+            else r["valor_2024"] < r["valor_2023"], axis=1)
+        nuevos = postal_inicio[postal_inicio["cumple_2023"] & ~postal_inicio["cumple_2024"]]
+        persistentes = postal_inicio[~postal_inicio["cumple_2023"] & ~postal_inicio["cumple_2024"]]
+    else:
+        postal_inicio = pd.DataFrame()
+        nuevos = persistentes = pd.DataFrame()
+        st.warning("No se encuentra el CSV de Correos. El resumen postal no está disponible.")
+
+    # Sanidad: los mismos umbrales iniciales del módulo, aplicados a la base completa.
+    sanidad_inicio = df.copy()
+    sanidad_inicio["nivel_inicio"] = "SIN ALERTA"
+    sanidad_inicio.loc[(sanidad_inicio["variacion_dias"] >= 10) &
+                       (sanidad_inicio["variacion_porcentual"] >= 10), "nivel_inicio"] = "MEDIA"
+    sanidad_inicio.loc[(sanidad_inicio["variacion_dias"] >= 20) &
+                       (sanidad_inicio["variacion_porcentual"] >= 15), "nivel_inicio"] = "ALTA"
+    altas_inicio = sanidad_inicio[sanidad_inicio["nivel_inicio"] == "ALTA"].sort_values(
+        "variacion_dias", ascending=False)
+    medias_inicio = sanidad_inicio[sanidad_inicio["nivel_inicio"] == "MEDIA"].sort_values(
+        "variacion_dias", ascending=False)
+
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Alertas altas · Sanidad", len(altas_inicio))
+    k2.metric("Alertas medias · Sanidad", len(medias_inicio))
+    k3.metric("Incumplimientos · Correos 2024", int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—")
+    k4.metric("Nuevos incumplimientos · Correos", len(nuevos))
+
+    st.subheader("📮 Correos: objetivos regulatorios")
+    if not postal_inicio.empty:
+        st.caption("La CNMC fija objetivos diferentes por indicador. Las etiquetas 'nuevo' y 'persistente' son cálculos de RADAR PÚBLICO al comparar únicamente 2023 y 2024.")
+        if not nuevos.empty:
+            st.markdown("**Pasan de cumplir a incumplir**")
+            for _, r in nuevos.iterrows():
+                diferencia = r["valor_2024"] - r["valor_2023"]
+                cambio_unidad = "puntos porcentuales" if r["unidad"].strip() == "%" else r["unidad"]
+                st.markdown(f"**{r['indicador']}** — 2023: {r['valor_2023']:g} {r['unidad']} → 2024: {r['valor_2024']:g} {r['unidad']} "
+                            f"(cambio {diferencia:+.2f} {cambio_unidad}). Objetivo: "
+                            f"{'≤' if r['sentido_objetivo'] == 'max' else '≥'} {r['objetivo_oficial']:g} {r['unidad']}.")
+                st.markdown(f"[CNMC 2023, p. {int(r['pagina_2023'])}]({r['fuente_2023']}#page={int(r['pagina_2023'])}) · "
+                            f"[CNMC 2024, p. {int(r['pagina_2024'])}]({r['fuente_2024']}#page={int(r['pagina_2024'])})")
+        else:
+            st.info("No hay nuevos incumplimientos en los dos ejercicios comparados.")
+        st.markdown(f"**Incumplimientos persistentes:** {len(persistentes)} indicadores. "
+                    "Consulta el módulo de Correos para examinar cada uno, incluidos los que mejoran sin llegar al objetivo.")
+        st.warning("Cautela: el ejercicio postal 2024 incorpora exclusiones aprobadas por la CNMC relacionadas con la DANA. "
+                   "Las cifras oficiales no prueban por sí solas las causas de los cambios.")
+
+    st.divider()
+    st.subheader("🏥 Sanidad: mayores aumentos de espera")
+    st.caption("Selección por aumento absoluto de días entre diciembre de 2024 y diciembre de 2025. "
+               "Se muestran únicamente alertas ALTAS con umbrales provisionales: al menos 20 días y 15%. "
+               "No son incumplimientos legales ni se equiparan a los de Correos.")
+    if altas_inicio.empty:
+        st.info("No hay alertas altas con los umbrales predeterminados.")
+    else:
+        tabla_inicio = altas_inicio.head(5)[["territorio", "especialidad", "valor_2024", "valor_2025", "variacion_dias", "variacion_porcentual"]].copy()
+        tabla_inicio.columns = ["Territorio", "Especialidad", "Días 2024", "Días 2025", "Aumento (días)", "Aumento (%)"]
+        st.dataframe(tabla_inicio, hide_index=True, use_container_width=True)
+        st.markdown(f"[Informe oficial de 2024]({FUENTE_2024}) · [Informe oficial de 2025]({FUENTE_2025}) · "
+                    f"[Portal de actualizaciones]({PORTAL_FUENTES})")
+        st.info(RECTIFICACION)
+        st.caption("Cada cifra y su comparabilidad requieren contraste en los PDF originales antes de publicar.")
+
+    st.divider()
+    st.markdown("**Para profundizar:** utiliza el selector «Sección» de la izquierda para entrar en Sanidad o Correos, "
+                "abrir las fichas de investigación, consultar las fuentes y, si procede, usar la IA privada.")
+    st.stop()
 
 if sector == "Trenes (próximamente)":
     st.warning("Este sector aún no dispone de datos contrastados.")
