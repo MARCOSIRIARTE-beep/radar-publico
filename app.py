@@ -20,7 +20,7 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.3 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.5 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -81,7 +81,7 @@ with st.sidebar:
         st.caption("Una alerta exige superar ambos umbrales del nivel correspondiente.")
 
 if sector == "Inicio · Hallazgos":
-    st.header("📰 Hallazgos para investigar")
+    st.header("📰 RADAR · Portada")
     st.caption("Selección automática de pistas periodísticas de Sanidad (2024–2025), Correos (2023–2024) y Trenes (2024–2025). No son noticias verificadas ni un ranking de gravedad entre sectores.")
 
     postal_csv = BASE / "RADAR_PUBLICO_correos_2023_2024.csv"
@@ -118,20 +118,12 @@ if sector == "Inicio · Hallazgos":
     medias_inicio = sanidad_inicio[sanidad_inicio["nivel_inicio"] == "MEDIA"].sort_values(
         "variacion_dias", ascending=False)
 
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Alertas altas · Sanidad", len(altas_inicio))
-    k2.metric("Alertas medias · Sanidad", len(medias_inicio))
-    k3.metric("Incumplimientos · Correos 2024", int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—")
-    k4.metric("Nuevos incumplimientos · Correos", len(nuevos))
-
-
-    st.divider()
-    st.subheader("🎯 Tres pistas para investigar primero")
-    st.caption(
-        "Selección orientativa y reproducible, basada en reglas explícitas; no es una "
-        "medición de gravedad social ni una clasificación comparable entre sectores. "
-        "Se reserva una pista para cada uno de los tres sectores con datos disponibles."
-    )
+    k1, k2, k3 = st.columns(3)
+    k1.metric("🏥 Sanidad · Alertas altas", len(altas_inicio))
+    k2.metric("📮 Correos · Incumplimientos", int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—")
+    k3.metric("🚆 Trenes · Líneas que empeoran", int(cargar_trenes()["cambio_pp"].lt(0).sum()))
+    st.subheader("🎯 Pistas prioritarias")
+    st.caption("Una por sector. Despliega la que quieras investigar. No son noticias verificadas.")
 
     # Orden de trabajo editorial, no puntuación artificial entre sectores:
     # 1) nuevo incumplimiento regulatorio postal;
@@ -238,20 +230,16 @@ if sector == "Inicio · Hallazgos":
     if not candidatos:
         st.info("No hay suficientes indicadores para proponer pistas de investigación.")
     else:
-        st.markdown("#### Semáforo de verificación editorial")
+        st.markdown("**Control editorial dentro de cada pista desplegable**")
         st.caption(
             "🔴 Detectada: pista automática sin revisión · "
             "🟠 En contraste: investigación iniciada · "
             "🟢 Lista para revisión: tres comprobaciones declaradas por el periodista. "
             "Ningún estado significa 'publicable' ni sustituye la aprobación editorial."
         )
-        st.info(
-            "Las marcas solo se conservan durante esta sesión del navegador. "
-            "No se guardan en GitHub ni se comparten con otros usuarios."
-        )
+        st.caption("Las marcas son temporales y solo se conservan durante esta sesión.")
         for posicion, caso in enumerate(candidatos[:3], 1):
-            with st.container(border=True):
-                st.markdown(f"**{posicion}. {caso['titulo']}**")
+            with st.expander(f"{posicion}. {caso['sector']} · {caso['titulo']}", expanded=False):
                 st.caption(f"{caso['sector']} · {caso['etiqueta']}")
                 st.write(f"**Dato:** {caso['dato']}")
                 st.write(f"**Por qué investigarlo:** {caso['motivo']}")
@@ -319,43 +307,68 @@ if sector == "Inicio · Hallazgos":
         st.caption("Orden editorial por categorías, no ranking estadístico. "
                    "Las etiquetas de RADAR PÚBLICO son cálculos propios, no declaraciones de la fuente.")
 
-    st.subheader("📮 Correos: objetivos regulatorios")
-    if not postal_inicio.empty:
-        st.caption("La CNMC fija objetivos diferentes por indicador. Las etiquetas 'nuevo' y 'persistente' son cálculos de RADAR PÚBLICO al comparar únicamente 2023 y 2024.")
-        if not nuevos.empty:
-            st.markdown("**Pasan de cumplir a incumplir**")
-            for _, r in nuevos.iterrows():
-                diferencia = r["valor_2024"] - r["valor_2023"]
-                cambio_unidad = "puntos porcentuales" if r["unidad"].strip() == "%" else r["unidad"]
-                st.markdown(f"**{r['indicador']}** — 2023: {r['valor_2023']:g} {r['unidad']} → 2024: {r['valor_2024']:g} {r['unidad']} "
-                            f"(cambio {diferencia:+.2f} {cambio_unidad}). Objetivo: "
-                            f"{'≤' if r['sentido_objetivo'] == 'max' else '≥'} {r['objetivo_oficial']:g} {r['unidad']}.")
-                st.markdown(f"[CNMC 2023, p. {int(r['pagina_2023'])}]({r['fuente_2023']}#page={int(r['pagina_2023'])}) · "
-                            f"[CNMC 2024, p. {int(r['pagina_2024'])}]({r['fuente_2024']}#page={int(r['pagina_2024'])})")
+    with st.expander("📮 Correos · Objetivos regulatorios", expanded=False):
+
+        if not postal_inicio.empty:
+            st.caption("La CNMC fija objetivos diferentes por indicador. Las etiquetas 'nuevo' y 'persistente' son cálculos de RADAR PÚBLICO al comparar únicamente 2023 y 2024.")
+            if not nuevos.empty:
+                st.markdown("**Pasan de cumplir a incumplir**")
+                for _, r in nuevos.iterrows():
+                    diferencia = r["valor_2024"] - r["valor_2023"]
+                    cambio_unidad = "puntos porcentuales" if r["unidad"].strip() == "%" else r["unidad"]
+                    st.markdown(f"**{r['indicador']}** — 2023: {r['valor_2023']:g} {r['unidad']} → 2024: {r['valor_2024']:g} {r['unidad']} "
+                                f"(cambio {diferencia:+.2f} {cambio_unidad}). Objetivo: "
+                                f"{'≤' if r['sentido_objetivo'] == 'max' else '≥'} {r['objetivo_oficial']:g} {r['unidad']}.")
+                    st.markdown(f"[CNMC 2023, p. {int(r['pagina_2023'])}]({r['fuente_2023']}#page={int(r['pagina_2023'])}) · "
+                                f"[CNMC 2024, p. {int(r['pagina_2024'])}]({r['fuente_2024']}#page={int(r['pagina_2024'])})")
+            else:
+                st.info("No hay nuevos incumplimientos en los dos ejercicios comparados.")
+            st.markdown(f"**Incumplimientos persistentes:** {len(persistentes)} indicadores. "
+                        "Consulta el módulo de Correos para examinar cada uno, incluidos los que mejoran sin llegar al objetivo.")
+            st.warning("Cautela: el ejercicio postal 2024 incorpora exclusiones aprobadas por la CNMC relacionadas con la DANA. "
+                       "Las cifras oficiales no prueban por sí solas las causas de los cambios.")
+
+    with st.expander("🏥 Sanidad · Listas de espera", expanded=False):
+
+        st.caption("Selección por aumento absoluto de días entre diciembre de 2024 y diciembre de 2025. "
+                   "Se muestran únicamente alertas ALTAS con umbrales provisionales: al menos 20 días y 15%. "
+                   "No son incumplimientos legales ni se equiparan a los de Correos.")
+        if altas_inicio.empty:
+            st.info("No hay alertas altas con los umbrales predeterminados.")
         else:
-            st.info("No hay nuevos incumplimientos en los dos ejercicios comparados.")
-        st.markdown(f"**Incumplimientos persistentes:** {len(persistentes)} indicadores. "
-                    "Consulta el módulo de Correos para examinar cada uno, incluidos los que mejoran sin llegar al objetivo.")
-        st.warning("Cautela: el ejercicio postal 2024 incorpora exclusiones aprobadas por la CNMC relacionadas con la DANA. "
-                   "Las cifras oficiales no prueban por sí solas las causas de los cambios.")
+            tabla_inicio = altas_inicio.head(5)[["territorio", "especialidad", "valor_2024", "valor_2025", "variacion_dias", "variacion_porcentual"]].copy()
+            tabla_inicio.columns = ["Territorio", "Especialidad", "Días 2024", "Días 2025", "Aumento (días)", "Aumento (%)"]
+            st.dataframe(tabla_inicio, hide_index=True, use_container_width=True)
+            st.markdown(f"[Informe oficial de 2024]({FUENTE_2024}) · [Informe oficial de 2025]({FUENTE_2025}) · "
+                        f"[Portal de actualizaciones]({PORTAL_FUENTES})")
+            st.info(RECTIFICACION)
+            st.caption("Cada cifra y su comparabilidad requieren contraste en los PDF originales antes de publicar.")
 
-    st.divider()
-    st.subheader("🏥 Sanidad: mayores aumentos de espera")
-    st.caption("Selección por aumento absoluto de días entre diciembre de 2024 y diciembre de 2025. "
-               "Se muestran únicamente alertas ALTAS con umbrales provisionales: al menos 20 días y 15%. "
-               "No son incumplimientos legales ni se equiparan a los de Correos.")
-    if altas_inicio.empty:
-        st.info("No hay alertas altas con los umbrales predeterminados.")
-    else:
-        tabla_inicio = altas_inicio.head(5)[["territorio", "especialidad", "valor_2024", "valor_2025", "variacion_dias", "variacion_porcentual"]].copy()
-        tabla_inicio.columns = ["Territorio", "Especialidad", "Días 2024", "Días 2025", "Aumento (días)", "Aumento (%)"]
-        st.dataframe(tabla_inicio, hide_index=True, use_container_width=True)
-        st.markdown(f"[Informe oficial de 2024]({FUENTE_2024}) · [Informe oficial de 2025]({FUENTE_2025}) · "
-                    f"[Portal de actualizaciones]({PORTAL_FUENTES})")
-        st.info(RECTIFICACION)
-        st.caption("Cada cifra y su comparabilidad requieren contraste en los PDF originales antes de publicar.")
+    with st.expander("🚆 Trenes · Puntualidad", expanded=False):
 
-    st.divider()
+        st.caption("Comparación anual 2024–2025, diez líneas. Datos publicados por Renfe.")
+        trenes_inicio = cargar_trenes().sort_values(["cambio_pp", "linea"])
+        if not trenes_inicio.empty:
+            tabla_trenes_inicio = trenes_inicio[["linea", "puntualidad_2024", "puntualidad_2025", "cambio_pp", "bajo_compromiso_2025"]].head(5).copy()
+            tabla_trenes_inicio.columns = ["Línea", "Puntualidad 2024 (%)", "Puntualidad 2025 (%)", "Variación (pp)", "Bajo el 96 % en 2025"]
+            st.dataframe(tabla_trenes_inicio, hide_index=True, use_container_width=True)
+            peor_tren_inicio = trenes_inicio.iloc[0]
+            texto_tren_inicio = (
+                f"**Mayor caída: {peor_tren_inicio['linea']}**, "
+                f"del {peor_tren_inicio['puntualidad_2024']:.2f} % "
+                f"al {peor_tren_inicio['puntualidad_2025']:.2f} % "
+                f"({peor_tren_inicio['cambio_pp']:+.2f} puntos porcentuales)."
+            )
+            st.markdown(texto_tren_inicio.replace(".", ","))
+            st.markdown(
+                f"**Fuentes:** [Renfe 2024]({RENFE_TRENES_2024}) · "
+                f"[Renfe 2025]({RENFE_TRENES_2025}) · "
+                f"[Carta de servicios]({RENFE_COMPROMISOS})"
+            )
+            st.warning("Antes de atribuir responsabilidades, comprobar supresiones, obras, incidencias y número de circulaciones.")
+        else:
+            st.info("No hay datos ferroviarios disponibles.")
+
     st.markdown("**Para profundizar:** utiliza el selector «Sección» de la izquierda para entrar en Sanidad, Correos o Trenes, "
                 "abrir las fichas de investigación, consultar las fuentes y, si procede, usar la IA privada.")
     st.stop()
@@ -370,7 +383,7 @@ if sector == "Trenes":
     c1.metric("Líneas analizadas", len(trenes))
     c2.metric("Bajo el 96 % en 2025", int(trenes["bajo_compromiso_2025"].sum()))
     c3.metric("Líneas que empeoran", int((trenes["cambio_pp"] < 0).sum()))
-    c4.metric("Mayor caída", f"{peor['linea']}: {peor['cambio_pp']:+.2f} pp".replace(".", ","))
+    c4.metric("Mayor caída", f"{peor['cambio_pp']:+.2f} pp".replace(".", ","), help=f"Línea {peor['linea']}")
 
     st.subheader("🔎 Pistas periodísticas")
     st.warning(
