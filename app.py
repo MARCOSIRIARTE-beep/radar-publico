@@ -20,7 +20,7 @@ RECTIFICACION = ("El Ministerio actualizó el 24 de septiembre de 2026 los infor
 
 st.set_page_config(page_title="RADAR PÚBLICO", page_icon="📡", layout="wide")
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.0 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.1 · IA experimental · Fuentes verificables")
 st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
 @st.cache_data
@@ -191,6 +191,17 @@ if sector == "Inicio · Hallazgos":
     if not candidatos:
         st.info("No hay suficientes indicadores para proponer pistas de investigación.")
     else:
+        st.markdown("#### Semáforo de verificación editorial")
+        st.caption(
+            "🔴 Detectada: pista automática sin revisión · "
+            "🟠 En contraste: investigación iniciada · "
+            "🟢 Documentada para revisión: verificaciones marcadas y evidencia registrada. "
+            "Ningún estado significa 'publicable' ni sustituye la aprobación editorial."
+        )
+        st.info(
+            "Las marcas y las notas solo se conservan durante esta sesión del navegador. "
+            "No se guardan en GitHub ni se comparten con otros usuarios."
+        )
         for posicion, caso in enumerate(candidatos[:3], 1):
             with st.container(border=True):
                 st.markdown(f"**{posicion}. {caso['titulo']}**")
@@ -201,6 +212,60 @@ if sector == "Inicio · Hallazgos":
                 st.markdown("**Fuentes:** " + " · ".join(
                     f"[{nombre}]({url})" for nombre, url in caso["fuentes"]
                 ))
+
+                # Identidad estable mientras la pista seleccionada siga siendo la misma.
+                # El estado se mantiene solo en st.session_state, sin almacenamiento externo.
+                clave_caso = f"revision_{caso['sector']}_{caso['titulo']}"
+                st.markdown("**Comprobaciones editoriales (manuales)**")
+                fuente = st.checkbox(
+                    "He abierto y contrastado las cifras con los documentos originales",
+                    key=f"{clave_caso}_fuente"
+                )
+                metodo = st.checkbox(
+                    "He comprobado metodología, comparabilidad y posibles rectificaciones",
+                    key=f"{clave_caso}_metodo"
+                )
+                contraste = st.checkbox(
+                    "He solicitado contraste a la fuente implicada y registrado su respuesta o ausencia",
+                    key=f"{clave_caso}_contraste"
+                )
+                notas = st.text_area(
+                    "Evidencias y comprobaciones (fuentes, fechas, respuesta y dudas pendientes)",
+                    key=f"{clave_caso}_notas",
+                    placeholder="Ej.: informe oficial, página, fecha de consulta, respuesta recibida...",
+                    height=100
+                )
+                iniciado = fuente or metodo or contraste or bool(notas.strip())
+                completo = fuente and metodo and contraste and len(notas.strip()) >= 30
+                if completo:
+                    st.success("🟢 DOCUMENTADA PARA REVISIÓN EDITORIAL · Requiere aprobación humana antes de publicar.")
+                elif iniciado:
+                    st.warning("🟠 EN CONTRASTE · Quedan comprobaciones o evidencias pendientes.")
+                else:
+                    st.error("🔴 DETECTADA · Pista automática, todavía sin verificar editorialmente.")
+                if fuente and metodo and contraste and not completo:
+                    st.caption("Para pasar a revisión, registra al menos 30 caracteres de evidencias.")
+                st.download_button(
+                    "Descargar ficha de seguimiento (TXT)",
+                    data=(
+                        f"RADAR PÚBLICO — FICHA DE SEGUIMIENTO\\n"
+                        f"Sector: {caso['sector']}\\n"
+                        f"Pista: {caso['titulo']}\\n"
+                        f"Dato: {caso['dato']}\\n"
+                        f"Motivo: {caso['motivo']}\\n"
+                        f"Pendiente: {caso['pendiente']}\\n"
+                        f"Fuentes: " + "; ".join(f"{n}: {u}" for n, u in caso["fuentes"]) + "\\n"
+                        f"Verificación de cifras: {'sí' if fuente else 'no'}\\n"
+                        f"Verificación de metodología: {'sí' if metodo else 'no'}\\n"
+                        f"Contraste solicitado: {'sí' if contraste else 'no'}\\n"
+                        f"Notas: {notas}\\n"
+                        f"Estado: {'DOCUMENTADA PARA REVISIÓN' if completo else 'EN CONTRASTE' if iniciado else 'DETECTADA'}\\n"
+                        "Estado autodeclarado; no implica aprobación editorial ni verificación automática.\\n"
+                    ).encode("utf-8-sig"),
+                    file_name=f"radar_publico_seguimiento_{posicion}.txt",
+                    mime="text/plain",
+                    key=f"{clave_caso}_descarga"
+                )
         st.caption("Orden editorial por categorías, no ranking estadístico. "
                    "Las etiquetas de RADAR PÚBLICO son cálculos propios, no declaraciones de la fuente.")
 
