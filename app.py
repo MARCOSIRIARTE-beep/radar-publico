@@ -29,7 +29,7 @@ div[data-testid="stMetricLabel"] {font-size: 0.86rem;}
 div[data-testid="stMetricValue"] {font-size: 1.65rem;}
 </style>""", unsafe_allow_html=True)
 st.title("📡 RADAR PÚBLICO")
-st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.6 · IA experimental · Fuentes verificables")
+st.caption("Observatorio experimental de indicadores de servicios públicos · Versión 1.7 · IA experimental · Fuentes verificables")
 if st.session_state.get("sector") != "Inicio · Hallazgos":
     st.info("Las alertas identifican cambios que merecen revisión; no demuestran por sí solas deterioro, anomalía estadística ni causalidad.")
 
@@ -125,10 +125,43 @@ if sector == "Inicio · Hallazgos":
     medias_inicio = sanidad_inicio[sanidad_inicio["nivel_inicio"] == "MEDIA"].sort_values(
         "variacion_dias", ascending=False)
 
-    k1, k2, k3 = st.columns(3)
-    k1.metric("🏥 Sanidad · Alertas altas", len(altas_inicio))
-    k2.metric("📮 Correos · Incumplimientos", int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—")
-    k3.metric("🚆 Trenes · Líneas que empeoran", int(cargar_trenes()["cambio_pp"].lt(0).sum()))
+    # Tarjetas de resumen visual. Los valores son recuentos calculados con los datos cargados.
+    total_sanidad = len(altas_inicio)
+    total_correos = int((~postal_inicio["cumple_2024"]).sum()) if not postal_inicio.empty else "—"
+    total_trenes = int(cargar_trenes()["cambio_pp"].lt(0).sum())
+    st.markdown(f"""
+    <style>
+    .radar-resumen {{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:0.3rem 0 1.2rem;}}
+    .radar-tarjeta {{border:1px solid #e1e7ef; border-radius:14px; padding:18px 20px;
+       background:linear-gradient(145deg,#ffffff 0%,#f7f9fc 100%); box-shadow:0 3px 12px rgba(20,34,60,.045);}}
+    .radar-tarjeta-cabecera {{display:flex;align-items:center;gap:12px;}}
+    .radar-icono {{display:flex;align-items:center;justify-content:center;width:54px;height:54px;
+       border-radius:13px;background:#eaf0f7;font-size:29px;flex-shrink:0;}}
+    .radar-titulo {{font-weight:750;font-size:1.16rem;color:#1e293b;}}
+    .radar-etiqueta {{color:#64748b;font-size:.82rem;margin-top:2px;}}
+    .radar-valor {{font-size:2.35rem;font-weight:760;line-height:1.15;margin-top:12px;color:#172a44;}}
+    .radar-pie {{font-size:.81rem;color:#536579;margin-top:4px;}}
+    @media (max-width:750px) {{.radar-resumen {{grid-template-columns:1fr;gap:9px;}}
+       .radar-tarjeta {{padding:12px 16px;}} .radar-valor {{font-size:1.85rem;}}}}
+    </style>
+    <div class="radar-resumen">
+      <div class="radar-tarjeta">
+        <div class="radar-tarjeta-cabecera"><span class="radar-icono">🏥</span><div>
+          <div class="radar-titulo">Sanidad</div><div class="radar-etiqueta">Listas de espera</div></div></div>
+        <div class="radar-valor">{total_sanidad}</div><div class="radar-pie">Alertas altas · 2024–2025</div>
+      </div>
+      <div class="radar-tarjeta">
+        <div class="radar-tarjeta-cabecera"><span class="radar-icono">📮</span><div>
+          <div class="radar-titulo">Correos</div><div class="radar-etiqueta">Calidad del servicio</div></div></div>
+        <div class="radar-valor">{total_correos}</div><div class="radar-pie">Indicadores fuera de objetivo · 2024</div>
+      </div>
+      <div class="radar-tarjeta">
+        <div class="radar-tarjeta-cabecera"><span class="radar-icono">🚆</span><div>
+          <div class="radar-titulo">Trenes</div><div class="radar-etiqueta">Cercanías Madrid</div></div></div>
+        <div class="radar-valor">{total_trenes}</div><div class="radar-pie">Líneas que empeoran · 2024–2025</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown("### 🎯 Tres pistas para investigar")
 
     # Orden de trabajo editorial, no puntuación artificial entre sectores:
